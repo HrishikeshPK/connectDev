@@ -4,8 +4,12 @@ const app = express()
 const User = require("./models/user")
 const { validateSignUpData } = require("./utils/validation")
 const bcrypt = require("bcrypt")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
+const { userAuth } = require("./middlewares/auth")
 
 app.use(express.json())  // middleware provided by express which is activated(.use) for all cases (routes)
+app.use(cookieParser())  
 
 app.post("/signup", async(req, res) => {
     try{
@@ -48,6 +52,14 @@ app.post("/login", async (req, res)=>{
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
         if(isPasswordValid){
+            // Create a JWT token
+
+            const token = await jwt.sign({_id: user._id}, "DEV@Tinder$798", {expiresIn:"0d"})  // DEV@Tinder$798 is a secret key/password
+
+            // Add the token to cookie and send the response back to the user
+            res.cookie("token", token, {
+                expires: new Date(Date.now() + 8 * 3600000)
+            })
             res.send("Login Successful!!")
         }else {
             throw new Error("Invalid credentials")
@@ -55,6 +67,35 @@ app.post("/login", async (req, res)=>{
     }catch (err) {
         res.status(400).send("ERROR : "+ err.message)
     } 
+})
+
+app.get("/profile", userAuth, async(req,res)=>{
+    try {
+    // const cookies = req.cookies  
+
+    // const { token } = cookies
+    // if (!token) {
+    //     throw new Error("Invalid Token")
+    // }
+    // // Validate my token
+
+    // const decodedMessage = await jwt.verify(token, "DEV@Tinder$798")    // DEV@Tinder$798 is a secret key/password
+    // // console.log(decodedMessage)
+    // const { _id } = decodedMessage
+    // // console.log("Logged in user is: " +_id)
+
+    // // console.log(cookies)  
+
+    // const user = await User.findById(_id)
+    // if(!user){
+    //     throw new Error("User does not exist")
+    // }
+    const user = req.user    
+    res.send(user)
+    }catch (err){
+        res.status(400).send("ERROR :"+ err.message)
+
+    }
 })
 
 // Get user by email
@@ -68,7 +109,7 @@ app.get("/user", async (req,res)=>{
         }else {
             res.send(user)
         }
-    } catch {
+    } catch (err) {
         res.status(400).send("Error saving the user:"+ err.message)
 
     }
