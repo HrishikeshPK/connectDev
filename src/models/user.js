@@ -53,6 +53,7 @@
         // }
     },
     photoUrl: {
+        
         type: String,
         validate(value) {
             if (!validator.isURL(value)){
