@@ -181,3 +181,10 @@ io.on("connection", (socket) => {
 server.listen(7777, () => {
   console.log("Server is successfully running on port 7777");
 });
+
+
+
+
+//  just copy pasting fro package.json to test deployment
+    // "start": "node src/app.js",
+    // "dev": "nodemon src/app.js"
