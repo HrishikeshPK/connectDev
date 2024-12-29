@@ -229,6 +229,11 @@ const adminRouter = require("./routes/admin");
 const paymentRouter = require("./routes/payment");
 const chatRouter = require("./routes/chat")
 
+app.get("/", (req, res) => {
+  res.send("Server is live!");
+});
+
+
 // Register Routes
 app.use("/", authRouter);
 app.use("/", profileRouter);
