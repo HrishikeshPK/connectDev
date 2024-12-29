@@ -352,9 +352,7 @@ app.use(express.json()); // Parse JSON
 app.use(cookieParser());
 
 // Root route for server check
-app.get("/", (req, res) => {
-  res.send("Server is live!");
-});
+
 
 // Importing Routers
 const authRouter = require("./routes/auth");
@@ -445,4 +443,8 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 7777;
 server.listen(PORT, () => {
   console.log(`Server is successfully running on port ${PORT}`);
+});
+
+app.get("/", (req, res) => {
+  res.send("Server is live!");
 });
