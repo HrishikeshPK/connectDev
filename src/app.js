@@ -178,8 +178,12 @@ io.on("connection", (socket) => {
 });
 
 // Start the Server
-server.listen(7777, () => {
-  console.log("Server is successfully running on port 7777");
+// server.listen(7777, () => {
+//   console.log("Server is successfully running on port 7777");
+// });
+const PORT = process.env.PORT || 7777;
+server.listen(PORT, () => {
+  console.log(`Server is successfully running on port ${PORT}`);
 });
 
 
