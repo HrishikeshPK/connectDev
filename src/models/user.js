@@ -65,9 +65,27 @@
         type: String,
         default: "This is a default about of the user",
     },
-     skills: {
+    skills: {
         type: [String],
-     }
+    },
+    trialStartDate: {
+        type: Date,
+        default: Date.now,
+      },
+      trialEndDate: {
+        type: Date,
+      },
+      paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'failed','succeeded'],
+        default: 'pending',
+      },
+      stripeCustomerId: {
+        type: String,
+      },
+      stripeSubscriptionId: {
+        type: String,
+      }    
  }, {
     timestamps: true
  })
@@ -89,4 +107,11 @@
     return isPasswordValid
  }
 
+ userSchema.pre('save', function(next) {
+    if (!this.trialEndDate) {
+      this.trialEndDate = new Date(this.trialStartDate);
+      this.trialEndDate.setDate(this.trialEndDate.getDate() + 7); // Add 7 days
+    }
+    next();
+  });
  module.exports = mongoose.model("User", userSchema)

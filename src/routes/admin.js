@@ -42,7 +42,7 @@ adminRouter.get("/admin/feed", async (req, res) => {
     }
   try {
     const users = await User.find(query)
-    .select("firstName lastName photoUrl age gender about ")
+    .select("firstName lastName photoUrl age gender about paymentStatus trialStartDate")
     res.send(users)
   }catch(err) {
     res.status(400).send({message: err.message})
