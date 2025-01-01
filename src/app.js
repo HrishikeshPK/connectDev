@@ -336,7 +336,7 @@ const allowedOrigins = [
 
 const io = new Server(server, {
   cors: {
-    origin:"*",    //allowedOrigins
+    origin: allowedOrigins,
     credentials: true,
   },
 });
@@ -344,7 +344,7 @@ const io = new Server(server, {
 // Middleware
 app.use(
   cors({
-    origin: "*",  //allowedOrigins
+    origin: allowedOrigins,
     credentials: true,
   })
 );
