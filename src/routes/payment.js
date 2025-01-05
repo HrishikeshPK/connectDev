@@ -6,31 +6,31 @@ const { userAuth } = require("../middlewares/auth")
 
 const paymentRouter = express.Router();
 
-// Route to create a payment intent
+// route to create a payment intent
 paymentRouter.post("/payment/createpaymentintent", userAuth, async (req, res) => {
-    const _id = req.user._id; // Get the user ID from the userAuth middleware
+    const _id = req.user._id; // idd from userauth
     console.log(_id);
   
     try {
       const user = await User.findById(_id);
   
-      // Check if the user exists
+      // checking if the user exists
       if (!user) {
         return res.status(404).send("User not found.");
       }
   
-      // Create a payment intent (no trial check)
+      // Create a payment intent 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: 1000, // Amount in cents (e.g., $10 = 1000 cents)
+        amount: 1000, 
         currency: "usd",
         description: `Payment for user ${user.firstName} ${user.lastName}`,
       });
   
-      // Update payment status to pending in the database
-      user.paymentStatus = "succeeded"; // Payment pending until completed
+      
+      user.paymentStatus = "succeeded"; // payment pending until completed
       await user.save();
   
-      // Send client secret to the frontend
+      // sending client secret to the frontend
       res.send({
         clientSecret: paymentIntent.client_secret,
       });

@@ -1,3 +1,194 @@
+
+
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const connectDB = require("./config/database");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const Message = require("./models/message");
+
+const app = express();
+const server = http.createServer(app); // Create HTTP server
+
+// Allowed origins
+const allowedOrigins = [
+  "http://localhost:5173", // Local development frontend
+  "https://hrishikeshpkconnectdev.netlify.app", // Deployed frontend
+];
+
+// Configure CORS for Express
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+// Root route for server check
+app.get("/", (req, res) => {
+  res.send("Server is live!");
+});
+
+// Initialize Socket.IO with CORS
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+// Importing and Registering Routers
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
+const adminRouter = require("./routes/admin");
+const paymentRouter = require("./routes/payment");
+const chatRouter = require("./routes/chat");
+
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
+app.use("/", adminRouter);
+app.use("/", paymentRouter);
+app.use("/", chatRouter);
+
+// Seed Default Admin
+const Admin = require("./models/admin");
+
+const seedAdmin = async () => {
+  try {
+    const existingAdmin = await Admin.findOne();
+    if (!existingAdmin) {
+      const admin = new Admin();
+      await admin.save();
+      console.log("Default admin created");
+    } else {
+      console.log("Admin already exists");
+    }
+  } catch (error) {
+    console.error("Error seeding admin:", error);
+  }
+};
+
+seedAdmin();
+
+// Database Connection
+connectDB()
+  .then(() => {
+    console.log("Database connection established");
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
+
+// Socket.IO Events
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("joinRoom", (userId) => {
+    socket.join(userId);
+    console.log(`User joined room: ${userId}`);
+  });
+
+  socket.on("sendMessage", async (messageData) => {
+    const { senderId, recipientId, text } = messageData;
+
+    try {
+      const newMessage = new Message({ senderId, recipientId, text });
+      await newMessage.save();
+
+      io.to(recipientId).emit("receiveMessage", {
+        senderId,
+        text,
+        timestamp: newMessage.timestamp,
+      });
+
+      console.log("Message sent:", messageData);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
+
+// Start the Server
+const PORT = process.env.PORT || 7777;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // const express = require("express")
 // const connectDB = require("./config/database")
 // const app = express()
@@ -448,130 +639,3 @@
 // app.get("/", (req, res) => {
 //   res.send("Server is live!");
 // });
-
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const connectDB = require("./config/database");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const Message = require("./models/message");
-
-const app = express();
-const server = http.createServer(app); // Create HTTP server
-
-// Allowed origins
-const allowedOrigins = [
-  "http://localhost:5173", // Local development frontend
-  "https://hrishikeshpkconnectdev.netlify.app", // Deployed frontend
-];
-
-// Configure CORS for Express
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-
-// Root route for server check
-app.get("/", (req, res) => {
-  res.send("Server is live!");
-});
-
-// Initialize Socket.IO with CORS
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-  },
-});
-
-// Importing and Registering Routers
-const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/profile");
-const requestRouter = require("./routes/request");
-const userRouter = require("./routes/user");
-const adminRouter = require("./routes/admin");
-const paymentRouter = require("./routes/payment");
-const chatRouter = require("./routes/chat");
-
-app.use("/", authRouter);
-app.use("/", profileRouter);
-app.use("/", requestRouter);
-app.use("/", userRouter);
-app.use("/", adminRouter);
-app.use("/", paymentRouter);
-app.use("/", chatRouter);
-
-// Seed Default Admin
-const Admin = require("./models/admin");
-
-const seedAdmin = async () => {
-  try {
-    const existingAdmin = await Admin.findOne();
-    if (!existingAdmin) {
-      const admin = new Admin();
-      await admin.save();
-      console.log("Default admin created");
-    } else {
-      console.log("Admin already exists");
-    }
-  } catch (error) {
-    console.error("Error seeding admin:", error);
-  }
-};
-
-seedAdmin();
-
-// Database Connection
-connectDB()
-  .then(() => {
-    console.log("Database connection established");
-  })
-  .catch((err) => {
-    console.error("Database connection failed:", err);
-  });
-
-// Socket.IO Events
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
-
-  socket.on("joinRoom", (userId) => {
-    socket.join(userId);
-    console.log(`User joined room: ${userId}`);
-  });
-
-  socket.on("sendMessage", async (messageData) => {
-    const { senderId, recipientId, text } = messageData;
-
-    try {
-      const newMessage = new Message({ senderId, recipientId, text });
-      await newMessage.save();
-
-      io.to(recipientId).emit("receiveMessage", {
-        senderId,
-        text,
-        timestamp: newMessage.timestamp,
-      });
-
-      console.log("Message sent:", messageData);
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
-});
-
-// Start the Server
-const PORT = process.env.PORT || 7777;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});

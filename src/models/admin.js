@@ -1,22 +1,22 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-// Default admin credentials
+// admin nte defaut
 const DEFAULT_ADMIN = {
   emailId: "admin@gmail.com",
-  password: bcrypt.hashSync("Admin@123", 10), // Hashed default password
+  password: bcrypt.hashSync("Admin@123", 10), 
 };
 
 const adminSchema = new mongoose.Schema({
     emailId: {
     type: String,
     required: true,
-    default: DEFAULT_ADMIN.emailId, // Hardcoded username
+    default: DEFAULT_ADMIN.emailId, // username hardcoded
   },
   password: {
     type: String,
     required: true,
-    default: DEFAULT_ADMIN.password, // Hardcoded hashed password
+    default: DEFAULT_ADMIN.password, //  hashed password hardcoded
   },
 });
 

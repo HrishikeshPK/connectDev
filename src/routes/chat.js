@@ -4,7 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 
 const chatRouter = express.Router();
 
-// Fetch chat history between logged-in user and another user
+// to fetch chat history between logged-in user and another user
 chatRouter.get("/chat/:recipientId", userAuth, async (req, res) => {
   try {
     const { recipientId } = req.params;
