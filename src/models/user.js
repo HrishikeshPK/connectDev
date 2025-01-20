@@ -113,5 +113,5 @@
       this.trialEndDate.setDate(this.trialEndDate.getDate() + 7); // Add 7 days
     }
     next();
-  });
+  }); 
  module.exports = mongoose.model("User", userSchema)
